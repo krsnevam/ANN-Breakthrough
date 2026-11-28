@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pranav's AgriTech Report</title>
+  <style>
+    :root { --ink:#17211b; --muted:#667169; --paper:#f7f8f3; --green:#1f7a4d; --lime:#9ccf67; --gold:#e6b44a; --red:#c75a54; --line:#dfe5dc; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--paper); color:var(--ink); font-family:Georgia,"Times New Roman",serif; }
+    .shell { max-width:1180px; margin:auto; padding:32px; }
+    header { min-height:260px; display:grid; grid-template-columns:1.4fr .6fr; align-items:end; border-bottom:1px solid var(--line); padding:38px 0 28px; }
+    .eyebrow { font-family:Arial,sans-serif; text-transform:uppercase; letter-spacing:.14em; font-size:12px; color:var(--green); font-weight:700; }
+    h1 { max-width:760px; margin:12px 0 16px; font-size:clamp(44px,7vw,78px); line-height:.94; letter-spacing:-.035em; }
+    .dek { max-width:660px; color:var(--muted); font-size:18px; line-height:1.55; }
+    .status { border-left:1px solid var(--line); padding:8px 0 8px 28px; }
+    .status strong { display:block; font-family:Arial,sans-serif; font-size:55px; color:var(--red); }
+    .status span { color:var(--muted); font-family:Arial,sans-serif; }
+    section { padding:34px 0; border-bottom:1px solid var(--line); }
+    h2 { margin:0 0 18px; font-size:34px; letter-spacing:-.02em; }
+    h3 { margin:0 0 8px; font-family:Arial,sans-serif; font-size:16px; }
+    .grid { display:grid; gap:16px; }
+    .metrics { grid-template-columns:repeat(4,1fr); }
+    .metric { background:white; border:1px solid var(--line); border-radius:8px; padding:18px; }
+    .metric b { display:block; font-family:Arial,sans-serif; font-size:34px; margin-bottom:5px; }
+    .metric span { color:var(--muted); font-family:Arial,sans-serif; font-size:13px; }
+    .two { grid-template-columns:1fr 1fr; }
+    .three { grid-template-columns:repeat(3,1fr); }
+    .panel { background:white; border:1px solid var(--line); border-radius:8px; padding:20px; }
+    .method { display:flex; gap:14px; align-items:flex-start; }
+    .method i { flex:0 0 34px; height:34px; border-radius:50%; background:var(--green); color:white; display:grid; place-items:center; font-family:Arial,sans-serif; font-style:normal; }
+    .method p { margin:0; color:var(--muted); line-height:1.5; }
+    table { width:100%; border-collapse:collapse; font-family:Arial,sans-serif; font-size:13px; }
+    th { text-align:left; color:var(--muted); border-bottom:1px solid var(--line); padding:9px 8px; }
+    td { border-bottom:1px solid #edf0ea; padding:9px 8px; }
+    .chart { width:100%; height:auto; display:block; }
+    .chart-grid-title { font-family:Arial,sans-serif; font-weight:700; font-size:15px; }
+    .formula { background:#edf4ea; border-left:4px solid var(--green); padding:18px 20px; font-size:18px; }
+    .warning { background:#fff3ec; border-left:4px solid var(--red); padding:16px 18px; }
+    footer { display:flex; justify-content:space-between; color:var(--muted); padding:26px 0 10px; font-family:Arial,sans-serif; font-size:12px; }
+    @media (max-width:800px) { .shell{padding:20px} header,.two,.three,.metrics{grid-template-columns:1fr} header{min-height:0} .status{border-left:0;border-top:1px solid var(--line);padding:20px 0 0} }
+  </style>
+</head>
+<body>
+<div class="shell">
+  <header>
+    <div>
+      <div class="eyebrow">Pranav's AgriTech Report · Foundation Track</div>
+      <h1>Tomato disease classifier</h1>
+      <p class="dek">A 10-class MobileNetV2 transfer-learning experiment on the public PlantVillage dataset, with held-out test evaluation and epoch-level training analysis.</p>
+    </div>
+    <div class="status">
+      <strong>93.47%</strong>
+      <span>held-out test accuracy<br>target: 95.00%</span>
+    </div>
+  </header>
+
+  <section>
+    <h2>Result at a glance</h2>
+    <div class="grid metrics">
+      <div class="metric"><b>93.47%</b><span>Test accuracy</span></div>
+      <div class="metric"><b>91.54%</b><span>Macro F1 score</span></div>
+      <div class="metric"><b>6.53%</b><span>Test error rate</span></div>
+      <div class="metric"><b>0.2212</b><span>Test cross-entropy loss</span></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Study design</h2>
+    <div class="grid two">
+      <div class="panel">
+        <h3>Dataset</h3>
+        <p>PlantVillage public data, restricted to the 10 tomato classes. Images were prepared as RGB JPEG files and organized with torchvision <code>ImageFolder</code>.</p>
+        <table>
+          <tr><td>Training</td><td><b>13,079</b></td></tr>
+          <tr><td>Validation</td><td><b>1,453</b></td></tr>
+          <tr><td>Held-out test</td><td><b>3,628</b></td></tr>
+          <tr><td>Seed</td><td><b>42</b></td></tr>
+        </table>
+      </div>
+      <div class="panel">
+        <h3>Target and conclusion</h3>
+        <p>The required foundation target was at least 95.00% held-out accuracy. The observed 93.47% result is 1.53 percentage points below target.</p>
+        <div class="warning"><b>Target not met.</b> The model is usable as an initial baseline, but requires further tuning or data augmentation before claiming the foundation pass mark.</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Training method</h2>
+    <div class="grid three">
+      <div class="panel method"><i>1</i><p><b>Base model</b><br>MobileNetV2 pretrained on ImageNet. The pretrained convolutional backbone supplies general visual features.</p></div>
+      <div class="panel method"><i>2</i><p><b>Classifier head</b><br>MobileNetV2's final 1,000-class layer was replaced with a 10-class linear layer. Eight epochs trained only this head.</p></div>
+      <div class="panel method"><i>3</i><p><b>Fine-tuning</b><br>The final two feature blocks were unfrozen and trained for five epochs at a lower learning rate.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Preprocessing and optimization</h2>
+    <div class="grid two">
+      <div class="panel"><h3>Training transforms</h3><p>224 × 224 random resized crop; random horizontal flip; brightness, contrast and saturation jitter; tensor conversion; ImageNet normalization.</p></div>
+      <div class="panel"><h3>Optimization</h3><p>Cross-entropy loss; AdamW; weight decay 10⁻⁴; classifier learning rate 10⁻³; fine-tune learning rate 10⁻⁵; batch size 32; seed 42.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Learning curves</h2>
+    <div class="grid two">
+      <div class="panel"><div id="lossChart"></div></div>
+      <div class="panel"><div id="accuracyChart"></div></div>
+      <div class="panel"><div id="errorChart"></div></div>
+      <div class="panel"><div id="targetChart"></div></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Epoch results</h2>
+    <table>
+      <thead><tr><th>Stage</th><th>Epoch</th><th>Train loss</th><th>Train error</th><th>Validation loss</th><th>Validation accuracy</th></tr></thead>
+      <tbody>
+        <tr><td>Classifier</td><td>1</td><td>0.8991</td><td>24.54%</td><td>0.5761</td><td>83.96%</td></tr>
+        <tr><td>Classifier</td><td>2</td><td>0.4613</td><td>12.34%</td><td>0.4162</td><td>88.16%</td></tr>
+        <tr><td>Classifier</td><td>3</td><td>0.3705</td><td>10.43%</td><td>0.3506</td><td>89.81%</td></tr>
+        <tr><td>Classifier</td><td>4</td><td>0.3200</td><td>8.98%</td><td>0.3132</td><td>90.85%</td></tr>
+        <tr><td>Classifier</td><td>5</td><td>0.2876</td><td>8.41%</td><td>0.2896</td><td>91.60%</td></tr>
+        <tr><td>Classifier</td><td>6</td><td>0.2710</td><td>8.04%</td><td>0.2813</td><td>91.60%</td></tr>
+        <tr><td>Classifier</td><td>7</td><td>0.2592</td><td>7.92%</td><td>0.2523</td><td><b>92.64%</b></td></tr>
+        <tr><td>Classifier</td><td>8</td><td>0.2418</td><td>7.34%</td><td>0.2430</td><td>92.64%</td></tr>
+        <tr><td>Fine-tune</td><td>1</td><td>2.1552</td><td>45.65%</td><td>0.8725</td><td>77.15%</td></tr>
+        <tr><td>Fine-tune</td><td>2</td><td>0.8431</td><td>22.69%</td><td>0.5275</td><td>85.68%</td></tr>
+        <tr><td>Fine-tune</td><td>3</td><td>0.5726</td><td>16.59%</td><td>0.4045</td><td>88.16%</td></tr>
+        <tr><td>Fine-tune</td><td>4</td><td>0.4585</td><td>14.19%</td><td>0.3305</td><td>88.99%</td></tr>
+        <tr><td>Fine-tune</td><td>5</td><td>0.3844</td><td>12.36%</td><td>0.2914</td><td>90.36%</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>Evaluation formulas</h2>
+    <div class="formula"><b>Cross-entropy loss</b><br>L = −(1/N) Σ log(softmax(zᵢ)ᵧᵢ)</div>
+    <br>
+    <div class="formula"><b>Error rate</b><br>E = 1 − accuracy = incorrect predictions / total predictions</div>
+  </section>
+
+  <section>
+    <h2>Interpretation and next improvements</h2>
+    <div class="grid two">
+      <div class="panel"><h3>What worked</h3><p>The pretrained backbone improved rapidly, with validation accuracy rising from 83.96% to 92.64%. Cross-entropy loss fell consistently during classifier training.</p></div>
+      <div class="panel"><h3>What did not work</h3><p>Fine-tuning the final two blocks initially destabilized training and ended below the classifier-stage best model. The fine-tuning learning rate or unfreezing depth needs revision.</p></div>
+      <div class="panel"><h3>Improve performance</h3><p>Test stronger augmentation, train one more block instead of two, use label smoothing, reduce or remove dropout, add early stopping, and tune input resolution.</p></div>
+      <div class="panel"><h3>Improve reliability</h3><p>Run repeated seeds, use stratified class splits, report confusion matrix and per-class F1, and test on PlantDoc field photos to measure generalization beyond lab images.</p></div>
+    </div>
+  </section>
+
+  <footer><span>AgriTech · Foundation report</span><span>Prepared 28 November 2026</span></footer>
+</div>
+<script>
+const epochs = Array.from({length:13}, (_, i) => i + 1);
+const trainLoss = [0.8991,0.4613,0.3705,0.3200,0.2876,0.2710,0.2592,0.2418,2.1552,0.8431,0.5726,0.4585,0.3844];
+const valLoss = [0.5761,0.4162,0.3506,0.3132,0.2896,0.2813,0.2523,0.2430,0.8725,0.5275,0.4045,0.3305,0.2914];
+const trainAcc = [0.7546,0.8766,0.8957,0.9102,0.9159,0.9196,0.9208,0.9266,0.5435,0.7731,0.8341,0.8581,0.8764];
+const valAcc = [0.8396,0.8816,0.8981,0.9085,0.9160,0.9160,0.9264,0.9264,0.7715,0.8568,0.8816,0.8899,0.9036];
+
+function lineChart(containerId, title, series, options={}) {
+  const width=500, height=300, left=52, right=18, top=38, bottom=42;
+  const all=series.flatMap(s=>s.values);
+  let min=options.min ?? Math.min(...all), max=options.max ?? Math.max(...all);
+  if (options.percent) { min=0; max=1; }
+  if (options.loss) { min=0; max=Math.max(...all)*1.12; }
+  const x=i=>left+(i/(epochs.length-1))*(width-left-right);
+  const y=v=>top+(max-v)/(max-min)*(height-top-bottom);
+  let grid='';
+  for(let i=0;i<=4;i++) { const yy=top+i*(height-top-bottom)/4; const val=max-i*(max-min)/4; grid+=`<line x1="${left}" y1="${yy}" x2="${width-right}" y2="${yy}" stroke="#dfe5dc"/><text x="${left-8}" y="${yy+4}" text-anchor="end" font-family="Arial" font-size="11" fill="#667169">${options.percent?(val*100).toFixed(0)+'%':val.toFixed(options.loss?2:2)}</text>`; }
+  let paths='';
+  series.forEach((s,si)=>{ const pts=s.values.map((v,i)=>`${x(i)},${y(v)}`).join(' '); paths+=`<polyline fill="none" stroke="${s.color}" stroke-width="3.5" points="${pts}"/>`; s.values.forEach((v,i)=>{ if(i===s.values.length-1 || i===7) paths+=`<circle cx="${x(i)}" cy="${y(v)}" r="3.5" fill="${s.color}"/>`; }); });
+  let phase='<rect x="'+left+'" y="'+top+'" width="'+(x(7)-left)+'" height="'+(height-top-bottom)+'" fill="#1f7a4d" opacity="0.035"/><rect x="'+x(8)+'" y="'+top+'" width="'+(width-right-x(8))+'" height="'+(height-top-bottom)+'" fill="#e6b44a" opacity="0.055"/>';
+  let extra='';
+  if(options.target) extra=`<line x1="${left}" y1="${y(options.target)}" x2="${width-right}" y2="${y(options.target)}" stroke="#c75a54" stroke-width="2" stroke-dasharray="7 6"/><text x="${width-right}" y="${y(options.target)-7}" text-anchor="end" font-family="Arial" font-size="11" fill="#c75a54">95% target</text>`;
+  let legend=series.map((s,i)=>`<circle cx="${left+i*120}" cy="24" r="5" fill="${s.color}"/><text x="${left+i*120+9}" y="28" font-family="Arial" font-size="12" fill="#17211b">${s.name}</text>`).join('');
+  let ticks=epochs.map((e,i)=>`<text x="${x(i)}" y="${height-18}" text-anchor="middle" font-family="Arial" font-size="10" fill="#667169">${i===0||i===7||i===12?e:''}</text>`).join('');
+  document.getElementById(containerId).innerHTML=`<svg class="chart" viewBox="0 0 ${width} ${height}" role="img"><rect width="${width}" height="${height}" rx="8" fill="white"/><text x="${left}" y="12" class="chart-grid-title">${title}</text>${legend}${phase}${grid}${extra}${paths}${ticks}<text x="${(left+width-right)/2}" y="${height-2}" text-anchor="middle" font-family="Arial" font-size="11" fill="#667169">Epoch</text></svg>`;
+}
+lineChart('lossChart','Cross-entropy loss',[{name:'Train',values:trainLoss,color:'#1f7a4d'},{name:'Validation',values:valLoss,color:'#e6b44a'}],{loss:true});
+lineChart('accuracyChart','Accuracy',[{name:'Train',values:trainAcc,color:'#1f7a4d'},{name:'Validation',values:valAcc,color:'#e6b44a'}],{percent:true,target:.95});
+lineChart('errorChart','Error rate',[{name:'Train',values:trainAcc.map(v=>1-v),color:'#1f7a4d'},{name:'Validation',values:valAcc.map(v=>1-v),color:'#e6b44a'}],{percent:true});
+const targetChart=document.getElementById('targetChart');
+targetChart.innerHTML=`<svg class="chart" viewBox="0 0 500 300" role="img"><rect width="500" height="300" rx="8" fill="white"/><text x="52" y="28" class="chart-grid-title">Held-out result vs target</text><line x1="52" y1="75" x2="450" y2="75" stroke="#dfe5dc"/><line x1="52" y1="125" x2="450" y2="125" stroke="#dfe5dc"/><line x1="52" y1="175" x2="450" y2="175" stroke="#dfe5dc"/><line x1="52" y1="225" x2="450" y2="225" stroke="#dfe5dc"/><rect x="52" y="140" width="${398*.9346748}" height="70" rx="5" fill="#1f7a4d"/><rect x="52" y="230" width="398" height="70" rx="5" fill="#edf0ea"/><rect x="52" y="230" width="398*.95" height="70" rx="5" fill="#e6b44a"/><text x="62" y="183" font-family="Arial" font-size="18" font-weight="700" fill="white">93.47%</text><text x="62" y="273" font-family="Arial" font-size="18" font-weight="700" fill="#17211b">95.00% target</text><line x1="${52+398*.95}" y1="218" x2="${52+398*.95}" y2="312" stroke="#c75a54" stroke-width="2"/><text x="450" y="62" text-anchor="end" font-family="Arial" font-size="12" fill="#c75a54">1.53 percentage points short</text></svg>`;
+</script>
+</body>
+</html>
